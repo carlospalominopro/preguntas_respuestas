@@ -1,0 +1,213 @@
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#FDFEFE" type="timer" [fullScreen]="true"></ngx-spinner>
+
+<div class="container">
+
+  <div class="row">
+
+    <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+      <li [ngbNavItem]="1">
+        <a ngbNavLink><b>Foro</b></a>
+        <ng-template ngbNavContent>
+
+          <div class="col-12 pt-3">
+            <h1> Preguntas y respuestas</h1>
+          </div>
+
+          <div class="col-12 d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" (click)="openQuestionModal(modalQuestion, null)">Crear
+              pregunta</button>
+          </div>
+
+          <div class="col-12 pt-2" *ngIf="questions.length && !error && !loading">
+
+            <div class="row">
+
+              <div class="col-12 pt-5" *ngFor="let item of questions; let i = index">
+
+                <div class="card">
+
+                  <div class="card-header">
+                    <div class="row">
+                      <div class="col-6">
+                        <h5> <span class="badge"
+                            [ngStyle]="{'background-color': item.Thematic.color, 'color' : 'black', 'padding' : '10px'}">{{
+                            item.Thematic.thematic }}</span></h5>
+                      </div>
+                      <div class="col-6 d-flex justify-content-end">
+                        <button type="button" class="btn btn-outline-primary" title="Editar pregunta" 
+                          (click)="openQuestionModal(modalQuestion, item)"><i class="bi bi-pencil"></i></button>
+                        <button type="button" class="btn btn-outline-danger" title="Eliminar pregunta" 
+                          (click)="deleteQuestion(item)"><i class="bi bi-trash"></i></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card-body">
+                    <div class="col-12">
+                      <h5 class="card-text"><b>{{ item.question }}</b></h5>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                      <button type="button" class="btn btn-secondary"
+                        (click)="openAnswerModal(modalAnswer, item.QuestionAnswers, item.id)"><i class="bi bi-reply"></i>
+                        Agregar Respuesta</button>
+                    </div>
+                  </div>
+
+                  <div class="card-footer">Respuestas : <span class="badge badge-pill badge-info">{{
+                      item.QuestionAnswers.length }}</span></div>
+
+                  <div class="card-footer bg-transparent" *ngFor="let answer of item.QuestionAnswers">
+                    <div class="row">
+                      <div class="col-6">
+                        <button type="button" class="btn btn-sm btn-primary" title="Editar respuesta" 
+                          (click)="openAnswerModal(modalAnswer, answer, item.id)"><i class="bi bi-pencil"></i></button>
+                        <button type="button" class="btn btn-sm btn-danger" title="Eliminar respuesta" 
+                          (click)="deleteAnswer(answer)"><i class="bi bi-trash"></i></button>
+                      </div>
+                      <div class="col-6 text-right">
+                        <p class="font-italic p-0 m-0">{{ answer.answer }} - <small class="font-italic"
+                          style="font-size: 0.6em;">{{ answer.updatedAt | date : 'dd/MM/yyyy HH:mm' : 'LOCAL' }}</small>
+                      </p>
+                      </div>
+                    </div>
+                    
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="col-12 pt-2" *ngIf="!loading && error">
+
+            <div class="row">
+
+              <div class="col-12 pt-3">
+
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <strong>Error al consultar!</strong> <br> Por favor revisar servicio backend.
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="col-12 pt-2" *ngIf="!loading && questions.length == 0 && !error">
+
+            <div class="row">
+
+              <div class="col-12 pt-3">
+
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  <strong>Sin registros!</strong> <br>
+                  Aún no se han registrado preguntas.
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+
+        </ng-template>
+      </li>
+    </ul>
+
+    <div [ngbNavOutlet]="nav" class="mt-2"></div>
+
+  </div>
+</div>
+
+
+<ng-template #modalQuestion>
+
+  <div class="modal-header">
+    <h3 *ngIf="!objModalQuestion.id">Crear pregunta</h3>
+    <h3 *ngIf="objModalQuestion.id">Editar pregunta</h3>
+
+    <button type="button" class="btn btn-ligth" aria-label="Close" (click)="close()">x</button>
+
+  </div>
+  <div class="modal-body">
+
+    <form class="was-validated" [formGroup]="formQuestions" (ngSubmit)="submitQuestion()">
+      <div class="row">
+
+        <div class="form-group pt-2 pb-2">
+          <label for="thematicId"><b>Temática</b></label>
+          <select class="form-control" id="thematicId" formControlName="thematicId"
+            [(ngModel)]="objModalQuestion.thematicId" required>
+            <option *ngFor="let item of thematics" [value]="item.id">{{ item.thematic }}</option>
+          </select>
+          <div class="invalid-feedback" *ngIf="formQuestions.controls.thematicId.errors">
+            Campo requerido
+          </div>
+        </div>
+
+        <div class="form-group pt-2 pb-4">
+          <label for="question"><b>Pregunta</b></label>
+          <textarea class="form-control" id="question" formControlName="question"
+            [(ngModel)]="objModalQuestion.question" required minlength="10"></textarea>
+          <div class="invalid-feedback" *ngIf="formQuestions.controls.question.errors">
+            Campo requerido, 10 caracteres mínimo
+          </div>
+        </div>
+
+        <div class="modal-footer pt-4">
+          <button type="button" class="btn btn-outline-dark" (click)="close()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" *ngIf="!objModalQuestion.id" [disabled]="formQuestions.invalid">Guardar</button>
+          <button type="submit" class="btn btn-success" *ngIf="objModalQuestion.id" [disabled]="formQuestions.invalid">Actualizar</button>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+
+
+</ng-template>
+
+<ng-template #modalAnswer>
+
+  <div class="modal-header">
+    <h3 *ngIf="!objModalAnswer.id">Agregar respuesta</h3>
+    <h3 *ngIf="objModalAnswer.id">Editar respuesta</h3>
+
+    <button type="button" class="btn btn-ligth" aria-label="Close" (click)="close()">x</button>
+
+  </div>
+  <div class="modal-body">
+
+    <form class="was-validated" [formGroup]="formAnswers" (ngSubmit)="submitAnswer()">
+      <div class="row">
+
+        <div class="form-group pt-2 pb-4">
+          <label for="answer"><b>Respuesta</b></label>
+          <textarea class="form-control" id="answer" formControlName="answer"
+            [(ngModel)]="objModalAnswer.answer" required minlength="10"></textarea>
+          <div class="invalid-feedback" *ngIf="formAnswers.controls.answer.errors">
+            Campo requerido, 10 caracteres mínimo
+          </div>
+        </div>
+
+        <div class="modal-footer pt-4">
+          <button type="button" class="btn btn-outline-dark" (click)="close()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" *ngIf="!objModalAnswer.id" [disabled]="formAnswers.invalid">Guardar</button>
+          <button type="submit" class="btn btn-success" *ngIf="objModalAnswer.id" [disabled]="formAnswers.invalid">Actualizar</button>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+
+
+</ng-template>
