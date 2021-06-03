@@ -1,6 +1,6 @@
-#INSTALACION FRONTEND
+INSTALACION - FRONTEND
 
-##ANGULAR
+ANGULAR
 
 Nota: se debe tener instalado angular y node en el equipo.
 
@@ -9,9 +9,9 @@ Nota: se debe tener instalado angular y node en el equipo.
 3. Acceder desde el navegador http://localhost:4200
 
 
-#INSTALACION BACKEND
+INSTALACION - BACKEND
 
-##NODEJS
+NODEJS
 
 Nota: se debe tener node en el equipo y tener postgres (pgAdmin 4)
 
@@ -25,3 +25,6 @@ host : 127.0.0.1
 3. npx sequelize-cli db:migrate
 4. npx sequelize-cli db:seed:all
 5. npm run dev
+
+
+DESCRIPCION : PROYECTO CRUD ANGULAR NODEJS PREGUNTAS Y RESPUESTAS.
